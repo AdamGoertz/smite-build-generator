@@ -69,16 +69,12 @@ class WeightedGraph:
         # check that the both vertices have the same weight for the same edge
         assert self.graph[v1][v2] == self.graph[v2][v1]
 
-    def loadFromList(self, vertices, complete=True):
+    def loadFromList(self, vertices, complete:bool=True):
         """Takes a list of vertices, and adds them to the current graph.
 
             Parameters:
-                vertices  : List[Any] -> the list of vertices to be added to the graph
+                vertices : List[Any] -> the list of vertices to be added to the graph
                 complete : bool      -> if true, then the new graph is assummed to be a complete graph (i.e. every vertex is connected to every other with weight 1).
-            Returns:
-                None
-            Throws:
-                TypeError -> connected is not a boolean value
             """
         if not isinstance(complete, bool):
             raise TypeError("connected must be of type bool")
@@ -102,10 +98,6 @@ class WeightedGraph:
 
             Parameters:
                 filename : str -> the name of the file
-            Returns:
-                None
-            Throws:
-                TypeError -> the name of the file was not a string
         """
 
         if not isinstance(filename, str):
@@ -117,10 +109,6 @@ class WeightedGraph:
 
             Parameters:
                 filename : str -> the name of the file to load from
-            Returns:
-                None
-            Throws:
-                TypeError -> the name of the file was not a string
         """
 
         if not isinstance(filename, str):

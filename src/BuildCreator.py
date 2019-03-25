@@ -13,6 +13,7 @@ class BuildCreator:
         self.item_occurrences = {}
         self.active_occurrences = {}
         self.slot_averages = {}
+        self.rms_from_middle_slot = {}
         self.complete_build = {"items" : [], "actives" : []}
 
     def __str__(self):
@@ -20,7 +21,7 @@ class BuildCreator:
         return f'{self.god}\nItems:\n\t{newline_and_tab.join(self.complete_build["items"])}\nActives:\n\t{newline_and_tab.join(self.complete_build["actives"])}'
         
     def update_slot_average(self, item: str, slot: int, *, item_type: str):
-        """Updates slot_averages, active_occurrences, and item_occurrences."""
+        """Updates slot_averages and either active_occurrences or item_occurrences."""
         if not isinstance(item, str):
             raise TypeError("Invalid item name: must be a string")
         if not isinstance(slot, int):
@@ -32,18 +33,28 @@ class BuildCreator:
             
         
         avg = self.slot_averages.get(item, 0)
+        rms_avg = self.rms_from_middle_slot.get(item, 0)
         if item_type == 'item':
             occurrences = self.item_occurrences.get(item, 0) 
         else:
             occurrences = self.active_occurrences.get(item, 0)
         
+        #RMS Average=======================================
+        rms_total = (rms_avg**2) * occurrences 
+        rms_total += (2.5 - slot)**2
+        #==================================================
 
         total = avg * occurrences
         total += slot
         occurrences += 1
         new_avg = total / occurrences
 
+        #RMS contd=========================================
+        new_rms = (rms_total / occurrences)**0.5
+        #==================================================
+
         self.slot_averages[item] = new_avg
+        self.rms_from_middle_slot[item] = new_rms
         if item_type == 'item':
             self.item_occurrences[item] = occurrences
         else:
@@ -78,8 +89,9 @@ class BuildCreator:
                 Choose the item that was most frequently built (largest # of co-occurrences) with the items already in the build.
                 If there is a tie: choose item with most total occurrences
                 For first item: choose most common
-            2) Order the items by sorting their slot averages in ascending order.
-            3) Get 2 most common actives
+            2) Get 2 most common actives
+            3) Order the items & actives by sorting their slot averages in ascending order.
+            
         """
 
         build = []
@@ -99,13 +111,13 @@ class BuildCreator:
                     max_occurrences = self.item_occurrences.get(best_item)
 
             build.append(best_item)
-            print(f"({j+1}): {build[j]} (Frequency: {self.item_occurrences[build[j]]}) (Slot Avg. {self.slot_averages[build[j]]})")
+            print(f"({j+1}): {build[j]} (Frequency: {self.item_occurrences[build[j]]}) (Slot Avg. {self.slot_averages[build[j]]}) (RMS Avg. {self.rms_from_middle_slot[build[j]]})")
 
         # (2)
-        build = sorted(build, key=lambda x: self.slot_averages.get(x))
+        freq_sorted_actives = sorted(self.active_occurrences, key=lambda x: self.active_occurrences.get(x), reverse=True)
         
         # (3)
-        freq_sorted_actives = sorted(self.active_occurrences, key=lambda x: self.active_occurrences.get(x), reverse=True)
+        build = sorted(build, key=lambda x: (2*self.slot_averages.get(x))+self.rms_from_middle_slot.get(x))
         order_sorted_actives = sorted(freq_sorted_actives[:2], key=lambda x: self.slot_averages.get(x))
 
         self.complete_build["actives"] = order_sorted_actives

@@ -1,3 +1,4 @@
+from math import fabs
 from WeightedGraph import WeightedGraph
 from typing import Dict, Any, List
 
@@ -10,15 +11,26 @@ class BuildCreator:
 
         self.god = god
         self.items = WeightedGraph(label=f"{self.god} - Items")
+        self.matches_recorded = 0
         self.item_occurrences = {}
         self.active_occurrences = {}
         self.slot_averages = {}
-        self.rms_from_middle_slot = {}
+        self.slot_variance = {}
         self.complete_build = {"items" : [], "actives" : []}
 
     def __str__(self):
-        newline_and_tab = "\n\t"
-        return f'{self.god}\nItems:\n\t{newline_and_tab.join(self.complete_build["items"])}\nActives:\n\t{newline_and_tab.join(self.complete_build["actives"])}'
+        return (f'~~~{self.god}~~~\n'
+                'Items:\n'
+                f'  1. {self.complete_build["items"][0]}\n'
+                f'  2. {self.complete_build["items"][1]}\n'
+                f'  3. {self.complete_build["items"][2]}\n'
+                f'  4. {self.complete_build["items"][3]}\n'
+                f'  5. {self.complete_build["items"][4]}\n'
+                f'  6. {self.complete_build["items"][5]}\n'
+                'Relics:\n'
+                f'  1. {self.complete_build["actives"][0]}\n'
+                f'  2. {self.complete_build["actives"][1]}\n'
+                )
         
     def update_slot_average(self, item: str, slot: int, *, item_type: str):
         """Updates slot_averages and either active_occurrences or item_occurrences."""
@@ -32,29 +44,28 @@ class BuildCreator:
             raise ValueError("item_type must be either 'item' or 'active'.")
             
         
-        avg = self.slot_averages.get(item, 0)
-        rms_avg = self.rms_from_middle_slot.get(item, 0)
+        slot_avg = self.slot_averages.get(item, 0)
+        var_avg = self.slot_variance.get(item, 0)
+
         if item_type == 'item':
             occurrences = self.item_occurrences.get(item, 0) 
         else:
             occurrences = self.active_occurrences.get(item, 0)
-        
-        #RMS Average=======================================
-        rms_total = (rms_avg**2) * occurrences 
-        rms_total += (2.5 - slot)**2
-        #==================================================
 
-        total = avg * occurrences
+        # Compute the new average item slot
+        total = slot_avg * occurrences
         total += slot
+        new_avg = total / (occurrences + 1)
+
+        # Compute the new average variance in item slot
+        total_var = var_avg * occurrences
+        total_var += fabs(new_avg - slot)
+        new_var = total_var / (occurrences + 1)
+
         occurrences += 1
-        new_avg = total / occurrences
-
-        #RMS contd=========================================
-        new_rms = (rms_total / occurrences)**0.5
-        #==================================================
-
+        
         self.slot_averages[item] = new_avg
-        self.rms_from_middle_slot[item] = new_rms
+        self.slot_variance[item] = new_var
         if item_type == 'item':
             self.item_occurrences[item] = occurrences
         else:
@@ -81,6 +92,8 @@ class BuildCreator:
 
         for i, active in enumerate(actives):
             self.update_slot_average(active, i, item_type='active')
+
+        self.matches_recorded += 1
 
     
     def get_build(self):
@@ -111,13 +124,19 @@ class BuildCreator:
                     max_occurrences = self.item_occurrences.get(best_item)
 
             build.append(best_item)
-            print(f"({j+1}): {build[j]} (Frequency: {self.item_occurrences[build[j]]}) (Slot Avg. {self.slot_averages[build[j]]}) (RMS Avg. {self.rms_from_middle_slot[build[j]]})")
+            print((f"({j+1}): "
+                   f"{best_item:<27} "
+                   f"(Freq. {max_occurrences/self.matches_recorded:<4.2f}) "
+                   f"(Mut Freq. {(max_freq/(self.matches_recorded*j) if j > 0 else 1):<4.2f}) "
+                   f"(Slot {(self.slot_averages[best_item]):<5.2f}) "
+                   f"(Slot Var. {self.slot_variance[best_item]:<5.2f})"
+                   ))
 
         # (2)
         freq_sorted_actives = sorted(self.active_occurrences, key=lambda x: self.active_occurrences.get(x), reverse=True)
         
         # (3)
-        build = sorted(build, key=lambda x: (2*self.slot_averages.get(x))+self.rms_from_middle_slot.get(x))
+        build = sorted(build, key=lambda x: (self.slot_averages.get(x))+(self.slot_variance.get(x) if self.slot_averages.get(x) >= 2.5 else -1*self.slot_variance.get(x)))
         order_sorted_actives = sorted(freq_sorted_actives[:2], key=lambda x: self.slot_averages.get(x))
 
         self.complete_build["actives"] = order_sorted_actives

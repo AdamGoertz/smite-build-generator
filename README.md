@@ -6,7 +6,7 @@ Usage: The script can be run from the command line using
     python main.py [god_name] [user] [user-id] (-p [page-range])
 ```
 
-Dependencies: 
+Dependencies:
     python 3.5+
     bs4
     requests

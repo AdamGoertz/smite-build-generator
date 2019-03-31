@@ -19,31 +19,27 @@ class BuildCreator:
         self.complete_build = {"items" : [], "actives" : []}
 
     def __str__(self):
-        return (f'~~~{self.god}~~~\n'
-                'Items:\n'
-                f'  1. {self.complete_build["items"][0]}\n'
-                f'  2. {self.complete_build["items"][1]}\n'
-                f'  3. {self.complete_build["items"][2]}\n'
-                f'  4. {self.complete_build["items"][3]}\n'
-                f'  5. {self.complete_build["items"][4]}\n'
-                f'  6. {self.complete_build["items"][5]}\n'
-                'Relics:\n'
-                f'  1. {self.complete_build["actives"][0]}\n'
-                f'  2. {self.complete_build["actives"][1]}\n'
-                )
-        
+        if self.matches_recorded > 0:
+            warning_message = "WARNING: Not enough matches found -- results may be inaccurate.\n"
+            return (f'{warning_message if self.matches_recorded <= 5 else ""}'
+                    f'~~~{self.god}~~~\n'
+                    'Items:\n'
+                    f'  1. {self.complete_build["items"][0]}\n'
+                    f'  2. {self.complete_build["items"][1]}\n'
+                    f'  3. {self.complete_build["items"][2]}\n'
+                    f'  4. {self.complete_build["items"][3]}\n'
+                    f'  5. {self.complete_build["items"][4]}\n'
+                    f'  6. {self.complete_build["items"][5]}\n'
+                    'Relics:\n'
+                    f'  1. {self.complete_build["actives"][0]}\n'
+                    f'  2. {self.complete_build["actives"][1]}\n'
+                    )
+        else:
+            return "No matches analyzed."
+
     def update_slot_average(self, item: str, slot: int, *, item_type: str):
         """Updates slot_averages and either active_occurrences or item_occurrences."""
-        if not isinstance(item, str):
-            raise TypeError("Invalid item name: must be a string")
-        if not isinstance(slot, int):
-            raise TypeError("slot must be an integer.")
-        if not isinstance(item_type, str):
-            raise TypeError("item_type must be a string.")
-        elif item_type not in ('item', 'active'):
-            raise ValueError("item_type must be either 'item' or 'active'.")
             
-        
         slot_avg = self.slot_averages.get(item, 0)
         var_avg = self.slot_variance.get(item, 0)
 
@@ -84,7 +80,6 @@ class BuildCreator:
         if len(actives) > 2:
             raise ValueError("Build contained > 2 actives.")
     
-
         self.items.loadFromList(items)
 
         for i, item in enumerate(items):
@@ -104,8 +99,12 @@ class BuildCreator:
                 For first item: choose most common
             2) Get 2 most common actives
             3) Order the items & actives by sorting their slot averages in ascending order.
-            
+               High variance moves items farther back in build if their average slot is high, 
+               but moves them up in the order if their average slot is low.
         """
+
+        if self.matches_recorded == 0:
+            return None
 
         build = []
 
@@ -135,7 +134,7 @@ class BuildCreator:
         # (2)
         freq_sorted_actives = sorted(self.active_occurrences, key=lambda x: self.active_occurrences.get(x), reverse=True)
         
-        # (3)
+        # (3) 
         build = sorted(build, key=lambda x: (self.slot_averages.get(x))+(self.slot_variance.get(x) if self.slot_averages.get(x) >= 2.5 else -1*self.slot_variance.get(x)))
         order_sorted_actives = sorted(freq_sorted_actives[:2], key=lambda x: self.slot_averages.get(x))
 

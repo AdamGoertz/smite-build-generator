@@ -1,17 +1,20 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup #type: ignore
 import requests
-from typing import List, Tuple, Dict, Any
-import pickle
+from abc import ABC, abstractmethod
+from typing import Iterable, Dict, Generator
 
-class SmiteGuruScraper:
-    # Custom types, for type hints
-    BuildItems = Dict[str, List[str]]
-    ItemCodes = Dict[int, str]
+class Scraper(ABC):
+    @abstractmethod
+    def builds(self, god_name: str, user:str, id: int, *, page_range: int=10):
+        pass
 
-    item_codes = {}
+class SmiteGuruScraper(Scraper):
+    BuildItems = Dict[str, Iterable[str]]
 
-    @classmethod
-    def getBuildInfo(cls, god_name: str, user: str, id: int, *,  page_range: int =10) -> BuildItems:
+    def __init__(self, item_factory):
+        self.item_factory = item_factory
+
+    def builds(self, god_name: str, user: str, id: int, *,  page_range: int=10) -> Generator[BuildItems, None, None]:
         """Scrapes the HTML for the smite.guru page corresponding to the selected user's matches.
 
                 Parameters:
@@ -21,6 +24,7 @@ class SmiteGuruScraper:
                     page_range  : int           -> The # of pages to scrape. More pages takes longer but yields better results.
                 Returns:
                     BuildItems -> item and active names for the next build."""
+
         matches_found = 0
         for i in range(1, page_range+1):
             r = requests.get(f"https://smite.guru/profile/{str(id)}-{user}/matches?page={i}")
@@ -36,12 +40,11 @@ class SmiteGuruScraper:
                 # Collect the item names for each match
                 for m in matches:
                     item_tags = m.find('div', {'class' : 'match-widget__items'}).findAll('img')
-                    items = [item.get('alt') for item in item_tags]
+                    items = map(self.item_factory, [item.get('alt') for item in item_tags])
                 
                     active_tags = m.find('div', {'class': 'match-widget__actives'}).findAll('img')
-                    actives = [active.get('alt') for active in active_tags]
+                    actives = map(self.item_factory, [active.get('alt') for active in active_tags])
                      
                     yield {"items" : items, "actives" : actives}
-        print(f"Matches Found: {matches_found}")
 
     

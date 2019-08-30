@@ -1,12 +1,15 @@
 import pickle
-from typing import List, Tuple, Dict, Any
+import itertools
+from typing import Iterable, Dict, Any
+
+Graph = Dict[Any, Dict[Any, int]]
 
 class WeightedGraph:
-    def __init__(self, graph=None, *, label="WeightedGraph"):
+    def __init__(self, graph: Graph=None, *, label: str="WeightedGraph"):
         self.label = label
 
         if not graph:
-            self.graph = {}
+            self.graph: Graph = {}
         else:
             if isinstance(graph, str):
                 self.load(graph)
@@ -19,12 +22,14 @@ class WeightedGraph:
         newline = '\n'
         return f"{self.label}:\n{newline.join([str(k) + ' : ' + str(v) for k,v in self.graph.items()])}"
 
-    def addVertex(self, key: Any):
+    def get(self, element: Any, default=None):
+        return self.graph.get(element, default)
+
+    def add_vertex(self, key: Any):
         if key not in self.graph:
             self.graph[key] = {}
 
-
-    def removeVertex(self, key: Any):
+    def remove_vertex(self, key: Any):
         # Remove the vertex from the graph
         self.graph.pop(key, None)
 
@@ -32,15 +37,15 @@ class WeightedGraph:
         for k in self.graph:
             self.graph[k].pop(key, None)
 
-    def removeEdge(self, v1, v2):
+    def remove_edge(self, v1: Any, v2: Any):
         if v1 not in self.graph or v2 not in self.graph:
             raise ValueError("One or more vertices not found in graph")
 
         self.graph[v1].pop(v2, None)
         self.graph[v2].pop(v1, None)
 
-    def incrementEdgeWeight(self, v1: Any, v2: Any, amt: int):
-        """Adds an edge of the specified weight, if it does not exist. Otherwise, increments the weight of the existing edge.
+    def add_edge(self, v1: Any, v2: Any, amt: int):
+        """Adds an edge of the specified weight if it does not exist. Otherwise, increments the weight of the existing edge.
 
                 Parameters:
                     v1 : Any -> the value of the one vertex
@@ -69,25 +74,24 @@ class WeightedGraph:
         # check that the both vertices have the same weight for the same edge
         assert self.graph[v1][v2] == self.graph[v2][v1]
 
-    def loadFromList(self, vertices, complete:bool=True):
+    def load_list(self, vertices: Iterable[Any], connection_weight:int=0):
         """Takes a list of vertices, and adds them to the current graph.
 
             Parameters:
                 vertices : List[Any] -> the list of vertices to be added to the graph
                 complete : bool      -> if true, then the new graph is assummed to be a complete graph (i.e. every vertex is connected to every other with weight 1).
             """
-        if not isinstance(complete, bool):
-            raise TypeError("connected must be of type bool")
-        if not isinstance(vertices, List) and not isinstance(vertices, Tuple):
+        if not isinstance(connection_weight, int):
+            raise TypeError("'connection_weight' must be an integer")
+        if not isinstance(vertices, Iterable):
             raise TypeError("vertices must be a collection")
 
         for v in vertices:
-            self.addVertex(v)
+            self.add_vertex(v)
 
-        if complete:
-            for i in range(len(vertices)):
-                for j in range(i + 1, len(vertices)):
-                    self.incrementEdgeWeight(vertices[i], vertices[j], 1)
+        if connection_weight > 0:
+            for vertex1, vertex2 in itertools.combinations(vertices, 2):
+                self.add_edge(vertex1, vertex2, connection_weight)
 
 
     def empty(self):

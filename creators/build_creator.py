@@ -1,6 +1,6 @@
 from typing import Iterable
 from trackers.build_tracker import BuildTracker
-from data.item import Item
+from data_objects.item import Item
 
 class BuildCreator:
     def __init__(self, build_tracker: BuildTracker):

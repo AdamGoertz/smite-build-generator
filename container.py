@@ -1,7 +1,7 @@
 import dependency_injector.containers as containers #type: ignore
 import dependency_injector.providers as providers   #type: ignore
 from trackers.item_tracker import ItemTracker
-from data.item import Item
+from data_objects.item import Item
 from graphs.weighted_graph import WeightedGraph
 from trackers.build_tracker import BuildTracker
 from creators.build_creator import ItemBuildCreator

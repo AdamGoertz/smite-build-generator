@@ -1,9 +1,9 @@
 from creators.build_creator import BuildCreator
 from scrapers.smiteguru_scraper import Scraper
-from data.player import Player
+from data_objects.player import Player
 
-#TODO: Plaayer data store
-#TODO: League data store
+#TODO: Plaayer data_objects store
+#TODO: League data_objects store
 
 class BuildGenerator:
     def __init__(self, god: str, build_creator: BuildCreator, scraper: Scraper):

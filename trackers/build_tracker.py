@@ -1,5 +1,5 @@
 from graphs.weighted_graph import WeightedGraph
-from data.item import Item
+from data_objects.item import Item
 from trackers.item_tracker import ItemTracker
 from typing import Iterable, Any, Dict
 
@@ -29,7 +29,7 @@ class BuildTracker:
         return tracker.count if tracker else 0
 
     def co_occurrences(self, item: Item, other_items: Iterable[Item]):
-        return sum((self.graph.get(item).get(co_occurring_item) for co_occurring_item in self.graph.get(item) if co_occurring_item in other_items))
+        return sum((self.graph.get(item).get(other_item, 0) for other_item in other_items))
 
     def get(self, item: Item, *, default: Any=None):
         return self.trackers.get(item, default)

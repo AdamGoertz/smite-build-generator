@@ -109,7 +109,7 @@ class WeightedGraph:
         pickle.dump(self.graph, open(filename, "wb"))
 
     def load(self, filename: str):
-        """Loads the data into the graph from a binary file.
+        """Loads the data_objects into the graph from a binary file.
 
             Parameters:
                 filename : str -> the name of the file to load from

@@ -18,7 +18,7 @@ class SmiteGuruScraper(Scraper):
         """Scrapes the HTML for the smite.guru page corresponding to the selected user's matches.
 
                 Parameters:
-                    god_name    : str           -> The name of the god you want data for.
+                    god_name    : str           -> The name of the god you want data_objects for.
                     user        : str           -> The username of the user whose builds you wish to see.
                     id          : int           -> The id of 'user', from the smite.guru url.
                     page_range  : int           -> The # of pages to scrape. More pages takes longer but yields better results.

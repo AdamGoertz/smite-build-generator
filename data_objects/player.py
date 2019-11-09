@@ -5,7 +5,4 @@ class Player:
     name: str
     id: int
 
-@dataclass(frozen=True)
-class ProPlayer(Player):
-    team: str
-    role: str
+    

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from .player import ProPlayer
+from .player import Player
 
 @dataclass
 class Team:
     name: str
     league: str
-    solo: ProPlayer
-    jungle: ProPlayer
-    mid: ProPlayer
-    support: ProPlayer
-    ADC: ProPlayer
+    solo: Player
+    jungle: Player
+    mid: Player
+    support: Player
+    adc: Player

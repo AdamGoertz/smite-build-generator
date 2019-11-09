@@ -1,9 +1,8 @@
 from creators.build_creator import BuildCreator
 from scrapers.smiteguru_scraper import Scraper
 from data_objects.player import Player
-
-#TODO: Plaayer data_objects store
-#TODO: League data_objects store
+from database.player_table import PlayerTable
+from database.team_table import TeamTable
 
 class BuildGenerator:
     def __init__(self, god: str, build_creator: BuildCreator, scraper: Scraper):
@@ -23,7 +22,7 @@ class BuildGenerator:
 
 
 class PlayerBuildGenerator(BuildGenerator):
-    def __init__(self, god: str, player_name: str, build_creator: BuildCreator, scraper: Scraper, player_data_store):
+    def __init__(self, god: str, player_name: str, build_creator: BuildCreator, scraper: Scraper, player_data_store: PlayerTable):
         super().__init__(god, build_creator, scraper)
         self.player = player_data_store.get_player_by_name(player_name)
 
@@ -34,13 +33,13 @@ class PlayerBuildGenerator(BuildGenerator):
 
 
 class RoleBuildGenerator(BuildGenerator):
-    def __init__(self, god: str, role: str, build_creator: BuildCreator, scraper: Scraper, player_data_store, league_data_store):
+    def __init__(self, god: str, role: str, build_creator: BuildCreator, scraper: Scraper, player_data_store: PlayerTable, team_data_store: TeamTable):
         super().__init__(god, build_creator, scraper)
         self.role = role
-        self.league_data_store = league_data_store
+        self.team_data_store = team_data_store
 
     def track_role_builds(self, role: str):
-        players = self.league_data_store.get_players_by_role(self.role)
+        players = self.team_data_store.get_players_by_role(self.role)
 
         for player in players:
             super().track_builds(player)

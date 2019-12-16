@@ -89,7 +89,7 @@ class WeightedGraph:
         for v in vertices:
             self.add_vertex(v)
 
-        if connection_weight > 0:
+        if connection_weight != 0:
             for vertex1, vertex2 in itertools.combinations(vertices, 2):
                 self.add_edge(vertex1, vertex2, connection_weight)
 

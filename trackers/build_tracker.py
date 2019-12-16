@@ -4,7 +4,7 @@ from trackers.item_tracker import ItemTracker
 from typing import Iterable, Any, Dict
 
 class BuildTracker:
-    def __init__(self, graph: WeightedGraph, tracker_factory):
+    def __init__(self, graph: WeightedGraph, tracker_factory: ItemTracker):
         self.graph = graph
         self.tracker_factory = tracker_factory
         self.trackers: Dict[Item, ItemTracker] = {}
@@ -15,7 +15,7 @@ class BuildTracker:
 
     def track(self, build: Iterable[Item]):
         self.graph.load_list(build, connection_weight=1)
-        
+
         for i, item in enumerate(build):
             if not self.trackers.get(item, None):
                 self.trackers[item] = self.tracker_factory(item)

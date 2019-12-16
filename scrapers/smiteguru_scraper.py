@@ -5,7 +5,7 @@ from typing import Iterable, Dict, Generator
 
 class Scraper(ABC):
     @abstractmethod
-    def builds(self, god_name: str, user:str, id: int, *, page_range: int=10):
+    def builds(self, god_name: str, user:str, id: int, page_range: int):
         pass
 
 class SmiteGuruScraper(Scraper):
@@ -14,7 +14,7 @@ class SmiteGuruScraper(Scraper):
     def __init__(self, item_factory):
         self.item_factory = item_factory
 
-    def builds(self, god_name: str, user: str, id: int, *,  page_range: int=10) -> Generator[BuildItems, None, None]:
+    def builds(self, god_name: str, user: str, id: int, page_range: int) -> Generator[BuildItems, None, None]:
         """Scrapes the HTML for the smite.guru page corresponding to the selected user's matches.
 
                 Parameters:
@@ -40,10 +40,10 @@ class SmiteGuruScraper(Scraper):
                 # Collect the item names for each match
                 for m in matches:
                     item_tags = m.find('div', {'class' : 'match-widget__items'}).findAll('img')
-                    items = map(self.item_factory, [item.get('alt') for item in item_tags])
+                    items = tuple(map(self.item_factory, [item.get('alt') for item in item_tags]))
                 
                     active_tags = m.find('div', {'class': 'match-widget__actives'}).findAll('img')
-                    actives = map(self.item_factory, [active.get('alt') for active in active_tags])
+                    actives = tuple(map(self.item_factory, [active.get('alt') for active in active_tags]))
                      
                     yield {"items" : items, "actives" : actives}
 

@@ -12,6 +12,7 @@ class ItemTracker:
         self.count += 1
 
     def get_slots(self):
+        # Return the list of slots [0-5] in descending order by number of occurrences
         return sorted(list(filter(lambda k: self.slots.get(k, 0) != 0, self.slots.keys())), key=lambda k: self.slots.get(k), reverse=True)
 
     def __repr__(self):

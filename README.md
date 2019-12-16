@@ -1,6 +1,8 @@
 # smite-build-generator
 A tool for scraping smite.guru and generating a suggested item build based on a player's match history.
 
+### Usage
+
 This tool supports storing players as well as entire teams using a command line interface. To add a new player,
 find their player ID from smite.guru and add it to the local database with
 
@@ -24,7 +26,7 @@ For example, you can add a new team to the database like so:
         --support [name] --adc [name]
 ```
 
-> *Note:* All players must already be stored in the player table before they can be added to a team.
+> **Note:** All players must already be stored in the player table before they can be added to a team.
 
 Then, you can search all the stored teams, and find builds for every role:
 
@@ -32,7 +34,9 @@ Then, you can search all the stored teams, and find builds for every role:
     python get_build.py [god_name] --role [role_name] (--pages [page_num])
 ```
 
-Dependencies:
+### Dependencies:
     python 3.7+
+
     bs4
+
     requests

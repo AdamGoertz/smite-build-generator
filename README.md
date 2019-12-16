@@ -34,9 +34,7 @@ Then, you can search all the stored teams, and find builds for every role:
     python get_build.py [god_name] --role [role_name] (--pages [page_num])
 ```
 
-### Dependencies:
-    python 3.7+
-
-    bs4
-
-    requests
+### Dependencies
+* python 3.7+
+* bs4
+* requests

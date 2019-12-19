@@ -2,35 +2,36 @@ from bs4 import BeautifulSoup #type: ignore
 import requests
 from abc import ABC, abstractmethod
 from typing import Iterable, Dict, Generator
+from data_objects.player import Player
 
-class Scraper(ABC):
-    @abstractmethod
-    def builds(self, god_name: str, user:str, id: int, page_range: int):
-        pass
-
-class SmiteGuruScraper(Scraper):
+class BuildDataProvider(ABC):
     BuildItems = Dict[str, Iterable[str]]
 
-    def __init__(self, item_factory):
-        self.item_factory = item_factory
+    @abstractmethod
+    def builds(self, god_name: str) -> Generator[BuildItems, None, None]:
+        pass
 
-    def builds(self, god_name: str, user: str, id: int, page_range: int) -> Generator[BuildItems, None, None]:
+class SmiteGuruScraper(BuildDataProvider):
+    def __init__(self, item_factory, player: Player, pages: int = 10):
+        self.item_factory = item_factory
+        self.user = player.name
+        self.id = player.id
+        self.pages = pages;
+
+    def builds(self, god_name: str) -> Generator[BuildDataProvider.BuildItems, None, None]:
         """Scrapes the HTML for the smite.guru page corresponding to the selected user's matches.
 
                 Parameters:
                     god_name    : str           -> The name of the god you want data_objects for.
-                    user        : str           -> The username of the user whose builds you wish to see.
-                    id          : int           -> The id of 'user', from the smite.guru url.
-                    page_range  : int           -> The # of pages to scrape. More pages takes longer but yields better results.
                 Returns:
                     BuildItems -> item and active names for the next build."""
 
         matches_found = 0
-        for i in range(1, page_range+1):
-            r = requests.get(f"https://smite.guru/profile/{str(id)}-{user}/matches?page={i}")
+        for i in range(1, self.pages+1):
+            r = requests.get(f"https://smite.guru/profile/{str(self.id)}-{self.user}/matches?page={i}")
 
             if (r.status_code == 200):
-                print(f"searching page ({i}/{page_range}) ...")
+                print(f"searching page ({i}/{self.pages}) ...")
                 soup = BeautifulSoup(r.text, 'html.parser')
 
                 # A list of all the match widgets in which the target god was played
@@ -47,4 +48,15 @@ class SmiteGuruScraper(Scraper):
                      
                     yield {"items" : items, "actives" : actives}
 
-    
+
+class MultiPlayerScraper(SmiteGuruScraper):
+    def __init__(self, item_factory, players: Iterable[Player], pages: int = 10):
+        super().__init__(item_factory, next(iter(players)), pages)
+        self.players = iter(players[1:])
+
+    def builds(self, god_name: str):
+        for player in self.players:
+            super().user = player.name
+            super().id = player.id
+            for build in super().builds(god_name):
+                yield build

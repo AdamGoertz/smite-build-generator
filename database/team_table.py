@@ -2,12 +2,12 @@ from database.connection import SmiteDBConnection
 from data_objects.team import Team
 from data_objects.player import Player
 from database.player_table import PlayerTable
-from typing import Tuple
+from typing import Tuple, Type, Optional
 
 class TeamTable(SmiteDBConnection):
     TABLE = "teams"
     
-    def __init__(self, player_table: PlayerTable, team_factory: Team):
+    def __init__(self, player_table: PlayerTable, team_factory: Type[Team]):
         super().__init__()
         self.player_table = player_table
         self.team_factory = team_factory
@@ -54,7 +54,7 @@ class TeamTable(SmiteDBConnection):
                                  WHERE league = ?;""", (league,))
             return tuple(self.team_factory(team[1], team[2], *map(self.player_table.get_player_by_id, team[3:])) for team in self.cur.fetchall())
 
-    def get_players_by_role(self, role: str) -> Tuple[Player]:
+    def get_players_by_role(self, role: str) -> Tuple[Optional[Player]]:
         if role.lower() not in ("solo", "jungle", "mid", "support", "adc"):
             raise ValueError("Invalid Role")
 

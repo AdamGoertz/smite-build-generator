@@ -1,10 +1,10 @@
 from graphs.weighted_graph import WeightedGraph
 from data_objects.item import Item
 from trackers.item_tracker import ItemTracker
-from typing import Iterable, Any, Dict
+from typing import Iterable, Any, Dict, Type
 
 class BuildTracker:
-    def __init__(self, graph: WeightedGraph, tracker_factory: ItemTracker):
+    def __init__(self, graph: WeightedGraph, tracker_factory: Type[ItemTracker]):
         self.graph = graph
         self.tracker_factory = tracker_factory
         self.trackers: Dict[Item, ItemTracker] = {}
@@ -35,7 +35,9 @@ class BuildTracker:
         return self.trackers.get(item, default)
 
     def items(self):
-        return self.trackers.keys()
+        # Return items in sorted order from most common to least common
+        # TODO: remove BuildCreator's dependency on ordering of returned items.
+        return sorted(self.trackers.keys(), key=lambda item: self.trackers.get(item).count, reverse=True)
 
     def get_trackers(self):
         return self.trackers.values()

@@ -1,18 +1,19 @@
 from bs4 import BeautifulSoup #type: ignore
 import requests
 from abc import ABC, abstractmethod
-from typing import Iterable, Dict, Generator
+from typing import Iterable, Sequence, Dict, Generator, Type
 from data_objects.player import Player
+from data_objects.item import Item
 
 class BuildDataProvider(ABC):
-    BuildItems = Dict[str, Iterable[str]]
+    BuildItems = Dict[str, Iterable[Item]]
 
     @abstractmethod
     def builds(self, god_name: str) -> Generator[BuildItems, None, None]:
         pass
 
 class SmiteGuruScraper(BuildDataProvider):
-    def __init__(self, item_factory, player: Player, pages: int = 10):
+    def __init__(self, item_factory: Type[Item], player: Player, pages: int = 10):
         self.item_factory = item_factory
         self.user = player.name
         self.id = player.id
@@ -50,9 +51,9 @@ class SmiteGuruScraper(BuildDataProvider):
 
 
 class MultiPlayerScraper(SmiteGuruScraper):
-    def __init__(self, item_factory, players: Iterable[Player], pages: int = 10):
-        super().__init__(item_factory, next(iter(players)), pages)
-        self.players = iter(players[1:])
+    def __init__(self, item_factory: Type[Item], players: Sequence[Player], pages: int = 10):
+        super().__init__(item_factory, players[0], pages)
+        self.players = players
 
     def builds(self, god_name: str):
         for player in self.players:

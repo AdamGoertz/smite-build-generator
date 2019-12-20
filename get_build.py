@@ -1,4 +1,5 @@
 import argparse
+import filters.default_filters
 from scrapers.smiteguru_scraper import SmiteGuruScraper, MultiPlayerScraper
 from data_objects.item import Item
 from build_generator import BuildGenerator
@@ -10,6 +11,7 @@ from database.player_table import PlayerTable
 from database.team_table import TeamTable
 from data_objects.player import Player
 from data_objects.team import Team
+
 
 parser = argparse.ArgumentParser(description='get a build for a specific god')
 parser.add_argument('god', help='the god to create a build for')
@@ -25,8 +27,8 @@ item_graph = WeightedGraph()
 relic_graph = WeightedGraph()
 item_tracker = BuildTracker(item_graph, ItemTracker)
 relic_tracker = BuildTracker(relic_graph, ItemTracker)
-item_creator = ItemBuildCreator(item_tracker)
-relic_creator = RelicBuildCreator(relic_tracker)
+item_creator = ItemBuildCreator(item_tracker, filters.default_filters.default_item_filters)
+relic_creator = RelicBuildCreator(relic_tracker, filters.default_filters.default_relic_filters)
 
 # Player-based search
 if args.player:

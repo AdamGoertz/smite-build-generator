@@ -1,5 +1,5 @@
 import argparse
-import filters.default_filters
+from filters import default_filters, default_maps
 from creators.build_creator import ItemBuildCreator, RelicBuildCreator
 from data_objects.build import Build
 from data_objects.item import Item
@@ -26,10 +26,10 @@ ptable = PlayerTable(Player)
 
 item_graph = WeightedGraph()
 relic_graph = WeightedGraph()
-item_tracker = BuildTracker(item_graph, ItemTracker)
-relic_tracker = BuildTracker(relic_graph, ItemTracker)
-item_creator = ItemBuildCreator(filters.default_filters.default_item_filters)
-relic_creator = RelicBuildCreator(filters.default_filters.default_relic_filters)
+item_tracker = BuildTracker(item_graph, ItemTracker, default_maps.default_item_maps)
+relic_tracker = BuildTracker(relic_graph, ItemTracker, default_maps.default_relic_maps)
+item_creator = ItemBuildCreator(default_filters.default_item_filters)
+relic_creator = RelicBuildCreator(default_filters.default_relic_filters)
 
 # Player-based search
 if args.player:

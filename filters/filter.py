@@ -27,6 +27,6 @@ class MutualExclusionFilter(Filter):
         return item in self.mutex_items and not self.mutex_items.isdisjoint(set(other_items))
 
 
-class DuplicateFilter(Filter):
+class DuplicateExclusionFilter(Filter):
     def apply(self, item: Item, other_items: Collection[Item] = set()) -> bool:
         return item in other_items

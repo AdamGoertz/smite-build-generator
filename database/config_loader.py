@@ -1,7 +1,7 @@
 import json
 from data_objects.item import Item
 from abc import ABC, abstractmethod
-from typing import Type, Tuple
+from typing import Type, Tuple, Any
 
 class ConfigDataLoader(ABC):
     @abstractmethod

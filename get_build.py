@@ -28,15 +28,15 @@ item_graph = WeightedGraph()
 relic_graph = WeightedGraph()
 item_tracker = BuildTracker(item_graph, ItemTracker)
 relic_tracker = BuildTracker(relic_graph, ItemTracker)
-item_creator = ItemBuildCreator(item_tracker, filters.default_filters.default_item_filters)
-relic_creator = RelicBuildCreator(relic_tracker, filters.default_filters.default_relic_filters)
+item_creator = ItemBuildCreator(filters.default_filters.default_item_filters)
+relic_creator = RelicBuildCreator(filters.default_filters.default_relic_filters)
 
 # Player-based search
 if args.player:
     player = ptable.get_player_by_name(args.player)
     if player:
         scraper = SmiteGuruScraper(Item, Build, player, pages=args.pages, verbose=args.verbose)
-        generator = BuildGenerator(args.god, Build, item_creator, relic_creator, scraper)
+        generator = BuildGenerator(args.god, Build, item_tracker, relic_tracker, item_creator, relic_creator, scraper)
         print(generator.generate_build())
     else:
         print(f'{args.player} was not found in the database.')
@@ -47,7 +47,7 @@ else:
     players = ttable.get_players_by_role(args.role)
     if players:
         scraper = MultiPlayerScraper(Item, Build, players, pages=args.pages, verbose=args.verbose)
-        generator = BuildGenerator(args.god, Build, item_creator, relic_creator, scraper)
+        generator = BuildGenerator(args.god, Build, item_tracker, relic_tracker, item_creator, relic_creator, scraper)
         print(generator.generate_build())
     else:
         print(f'No players with role "{args.role}" found in database.')

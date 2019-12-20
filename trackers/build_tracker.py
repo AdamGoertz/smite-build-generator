@@ -1,7 +1,7 @@
 from graphs.weighted_graph import WeightedGraph
 from data_objects.item import Item
 from trackers.item_tracker import ItemTracker
-from typing import Iterable, Any, Dict, Type
+from typing import Collection, Any, Dict, Type
 
 class BuildTracker:
     def __init__(self, graph: WeightedGraph, tracker_factory: Type[ItemTracker]):
@@ -13,7 +13,7 @@ class BuildTracker:
     def __repr__(self):
         return f'[{", ".join((str(tracker) for tracker in self.trackers.values()))}]'
 
-    def track(self, build: Iterable[Item]):
+    def track(self, build: Collection[Item]):
         self.graph.load_list(build, connection_weight=1)
 
         for i, item in enumerate(build):
@@ -28,7 +28,7 @@ class BuildTracker:
         tracker = self.trackers.get(item, None)
         return tracker.count if tracker else 0
 
-    def co_occurrences(self, item: Item, other_items: Iterable[Item]):
+    def co_occurrences(self, item: Item, other_items: Collection[Item]):
         return sum((self.graph.get(item).get(other_item, 0) for other_item in other_items))
 
     def get(self, item: Item, *, default: Any=None):

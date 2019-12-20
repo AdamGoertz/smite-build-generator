@@ -4,22 +4,22 @@ from abc import ABC, abstractmethod
 from typing import Iterable, Sequence, Dict, Generator, Type
 from data_objects.player import Player
 from data_objects.item import Item
+from data_objects.build import Build
 
 class BuildDataProvider(ABC):
-    BuildItems = Dict[str, Iterable[Item]]
-
     @abstractmethod
-    def builds(self, god_name: str) -> Generator[BuildItems, None, None]:
+    def builds(self, god_name: str) -> Generator[Build, None, None]:
         pass
 
 class SmiteGuruScraper(BuildDataProvider):
-    def __init__(self, item_factory: Type[Item], player: Player, pages: int = 10):
+    def __init__(self, item_factory: Type[Item], build_factory: Type[Build], player: Player, pages: int = 10):
         self.item_factory = item_factory
+        self.build_factory = build_factory
         self.user = player.name
         self.id = player.id
         self.pages = pages;
 
-    def builds(self, god_name: str) -> Generator[BuildDataProvider.BuildItems, None, None]:
+    def builds(self, god_name: str) -> Generator[Build, None, None]:
         """Scrapes the HTML for the smite.guru page corresponding to the selected user's matches.
 
                 Parameters:
@@ -47,7 +47,7 @@ class SmiteGuruScraper(BuildDataProvider):
                     active_tags = m.find('div', {'class': 'match-widget__actives'}).findAll('img')
                     actives = tuple(map(self.item_factory, [active.get('alt') for active in active_tags]))
                      
-                    yield {"items" : items, "actives" : actives}
+                    yield self.build_factory(items, actives)
 
 
 class MultiPlayerScraper(SmiteGuruScraper):

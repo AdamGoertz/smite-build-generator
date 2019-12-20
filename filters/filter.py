@@ -1,4 +1,4 @@
-from typing import Collection, Any
+from typing import Collection
 from abc import ABC, abstractmethod
 from data_objects.item import Item
 

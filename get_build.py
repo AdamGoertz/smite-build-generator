@@ -11,6 +11,7 @@ from database.player_table import PlayerTable
 from database.team_table import TeamTable
 from data_objects.player import Player
 from data_objects.team import Team
+from data_objects.build import Build
 
 
 parser = argparse.ArgumentParser(description='get a build for a specific god')
@@ -34,8 +35,8 @@ relic_creator = RelicBuildCreator(relic_tracker, filters.default_filters.default
 if args.player:
     player = ptable.get_player_by_name(args.player)
     if player:
-        scraper = SmiteGuruScraper(Item, player, args.pages)
-        generator = BuildGenerator(args.god, item_creator, relic_creator, scraper)
+        scraper = SmiteGuruScraper(Item, Build, player, args.pages)
+        generator = BuildGenerator(args.god, Build, item_creator, relic_creator, scraper)
         print(generator.generate_build())
     else:
         print(f'{args.player} was not found in the database.')

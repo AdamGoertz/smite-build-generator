@@ -6,7 +6,7 @@ class Filter(ABC):
     @abstractmethod
     def apply(self, item: Item, other_items: Collection[Item] = set()) -> bool:
         """Return True if item meets filter condition (should be filtered), False otherwise."""
-        pass
+        return False
 
 
 # Filter class concrete implementations
@@ -22,7 +22,11 @@ class MutualExclusionFilter(Filter):
     def __init__(self, mutually_exclusive_items: Collection[Item] = set()):
         self.mutex_items = set(mutually_exclusive_items)
 
-    def apply(self, item: Item, other_items: Collection[Item]) -> bool:
+    def apply(self, item: Item, other_items: Collection[Item] = set()) -> bool:
         # Return True if the new item is in the mutex group, and the build already contains one+ item(s) in the mutex group.
-        return True if (self.mutex_items & set(other_items)) and item in self.mutex_items else False
+        return item in self.mutex_items and not self.mutex_items.isdisjoint(set(other_items))
 
+
+class DuplicateFilter(Filter):
+    def apply(self, item: Item, other_items: Collection[Item] = set()) -> bool:
+        return item in other_items

@@ -13,7 +13,7 @@ class BuildCreator:
 
     def get_build(self, item_count: int) -> Collection[Item]:
         if not self.build_tracker.items():
-            return None
+            return tuple()
 
         build: List[Item] = []
 
@@ -33,11 +33,11 @@ class BuildCreator:
         # Find the item where the sum of the connections between that item and other items in the build is maximized
         # Provided the item is allowed by the filters.
         return max(self.build_tracker.items(),
-                   key=lambda item: self.build_tracker.co_occurrences(item, build) if item not in build and not self._filter(item, build) else -1)
+                   key=lambda item: self.build_tracker.co_occurrences(item, build) if not self._filter(item, build) else -1)
 
 
 class ItemBuildCreator(BuildCreator):
-    ITEM_COUNT = 6
+    ITEM_COUNT: int = 6
 
     def __init__(self, build_tracker: BuildTracker, filters: Collection[Filter] = tuple()):
         super().__init__(build_tracker, filters)
@@ -47,7 +47,7 @@ class ItemBuildCreator(BuildCreator):
 
 
 class RelicBuildCreator(BuildCreator):
-    ITEM_COUNT = 2
+    ITEM_COUNT: int = 2
 
     def __init__(self, build_tracker: BuildTracker, filters: Collection[Filter] = tuple()):
         super().__init__(build_tracker)

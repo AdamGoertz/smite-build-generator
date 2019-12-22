@@ -17,8 +17,8 @@ class SmiteGuruScraper(BuildDataProvider):
     def __init__(self, item_factory: Type[Item], build_factory: Type[Build], player: Player, *, pages: int=10, verbose: bool=False):
         self.item_factory = item_factory
         self.build_factory = build_factory
-        self.user = player.name
-        self.id = player.id
+        self.user: str = player.name
+        self.id: int = player.id
         self.pages = pages
         self.verbose = verbose
 
@@ -28,7 +28,7 @@ class SmiteGuruScraper(BuildDataProvider):
                 Parameters:
                     god_name    : str           -> The name of the god you want data_objects for.
                 Returns:
-                    BuildItems -> item and active names for the next build."""
+                    Build -> item and active names for the next build."""
 
         if self.verbose:
             print(f"Searching {self.user}'s builds...")
@@ -68,7 +68,7 @@ class MultiPlayerScraper(SmiteGuruScraper):
 
     def builds(self, god_name: str) -> Generator[Build, None, None]:
         for player in self.players:
-            super().user = player.name
-            super().id = player.id
+            self.user = player.name
+            self.id = player.id
             for build in super().builds(god_name):
                 yield build

@@ -1,12 +1,12 @@
-from filters.map import IdentityMap, Map
+from filters.item_map import IdentityMap, ItemMap
 from database.config_loader import ItemLoader
 from data_objects.item import Item
 from typing import List
 
 loader = ItemLoader(Item)
 
-default_item_maps: List[Map] = []
-default_relic_maps: List[Map] = []
+default_item_maps: List[ItemMap] = []
+default_relic_maps: List[ItemMap] = []
 
 default_item_maps.append(IdentityMap(loader.load("./config/book_of_thoth.json")))
 default_item_maps.append(IdentityMap(loader.load("./config/devourer's_gauntlet.json")))

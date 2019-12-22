@@ -2,7 +2,7 @@ from database.connection import SmiteDBConnection
 from data_objects.team import Team
 from data_objects.player import Player
 from database.player_table import PlayerTable
-from typing import Tuple, Type, Optional
+from typing import Tuple, Type, List, Optional
 
 class TeamTable(SmiteDBConnection):
     TABLE = "teams"
@@ -29,7 +29,14 @@ class TeamTable(SmiteDBConnection):
         with self.conn:
             self.cur.execute(f"""INSERT INTO {TeamTable.TABLE} (name, league, solo, jungle, mid, support, adc)
                                  VALUES (?, ?, ?, ?, ?, ?, ?);""",
-                             (team.name, team.league, team.solo.id, team.jungle.id, team.mid.id, team.support.id, team.adc.id))
+                             (team.name,
+                              team.league,
+                              team.solo.id if team.solo else None,
+                              team.jungle.id if team.jungle else None,
+                              team.mid.id if team.mid else None,
+                              team.support.id if team.support else None,
+                              team.adc.id if team.adc else None
+                              ))
 
     def remove_team(self, team: Team) -> None:
         with self.conn:
@@ -46,18 +53,35 @@ class TeamTable(SmiteDBConnection):
                                  support = ?,
                                  adc = ? 
                                  WHERE (name = ? OR name = ?) AND (league = ? OR league = ?);""",
-                             (team.name, team.league, team.solo.id, team.jungle.id, team.mid.id, team.support.id, team.adc.id, team.name, old_name, team.league, old_league))
+                             (team.name,
+                              team.league,
+                              team.solo.id if team.solo else None,
+                              team.jungle.id if team.jungle else None,
+                              team.mid.id if team.mid else None,
+                              team.support.id if team.support else None,
+                              team.adc.id if team.adc else None,
+                              team.name,
+                              old_name,
+                              team.league,
+                              old_league))
 
-    def get_teams_in_league(self, league: str) -> Tuple[Team]:
+    def get_teams_in_league(self, league: str) -> Tuple[Team, ...]:
         with self.conn:
             self.cur.execute(f"""SELECT * FROM {TeamTable.TABLE}
                                  WHERE league = ?;""", (league,))
             return tuple(self.team_factory(team[1], team[2], *map(self.player_table.get_player_by_id, team[3:])) for team in self.cur.fetchall())
 
-    def get_players_by_role(self, role: str) -> Tuple[Optional[Player]]:
+    def get_players_by_role(self, role: str) -> Tuple[Player, ...]:
         if role.lower() not in ("solo", "jungle", "mid", "support", "adc"):
             raise ValueError("Invalid Role")
 
         with self.conn:
             self.cur.execute(f"""SELECT ({role}) FROM {TeamTable.TABLE};""")
-            return tuple(self.player_table.get_player_by_id(player_id[0]) for player_id in self.cur.fetchall())
+
+            players: List[Player] = []
+            for player_id in self.cur.fetchall():
+                player: Optional[Player] = self.player_table.get_player_by_id(player_id[0])
+                if player is not None:
+                    players.append(player)
+
+            return tuple(players)

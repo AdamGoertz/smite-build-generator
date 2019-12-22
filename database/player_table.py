@@ -22,12 +22,12 @@ class PlayerTable(SmiteDBConnection):
 
     def remove_player(self, player: Player) -> None:
         with self.conn:
-            self.cur.execute(f"""DELETE FROM {PlayerTable.TABLE} WHERE name = ? AND id = ?;""", (player.name, player.id))
+            self.cur.execute(f"""DELETE FROM {PlayerTable.TABLE} WHERE LOWER(name) = ? AND id = ?;""", (player.name.lower(), player.id))
 
     def get_player_by_name(self, name: str) -> Optional[Player]:
         # Currently returns only one Player object, even though there may potentially be multiple players with the same name in the database
         with self.conn:
-            self.cur.execute(f"""SELECT * FROM {PlayerTable.TABLE} WHERE name = ?;""", (name,))
+            self.cur.execute(f"""SELECT * FROM {PlayerTable.TABLE} WHERE LOWER(name) = ?;""", (name.lower(),))
             res = self.cur.fetchone()
             return self.player_factory(*res) if res else None
 
@@ -39,5 +39,5 @@ class PlayerTable(SmiteDBConnection):
 
     def change_name(self, player: Player, new_name: str) -> Optional[Player]:
         with self.conn:
-            self.cur.execute(f"""UPDATE {PlayerTable.TABLE} SET name = ? WHERE name = ? AND id = ?;""", (new_name, player.name, player.id))
+            self.cur.execute(f"""UPDATE {PlayerTable.TABLE} SET name = ? WHERE LOWER(name) = ? AND id = ?;""", (new_name, player.name.lower(), player.id))
             return self.get_player_by_id(player.id)

@@ -1,16 +1,17 @@
-from typing import Collection, List
+from typing import Collection, List, Sequence
 from trackers.build_tracker import BuildTracker
 from filters.filter import Filter
 from data_objects.item import Item
 
 class BuildCreator:
-    def __init__(self, filters: Collection[Filter] = tuple()):
+    def __init__(self, item_count: int, filters: Collection[Filter] = tuple()):
         self.filters = filters
+        self.item_count = item_count
 
-    def get_build(self, build_tracker: BuildTracker, item_count: int) -> Collection[Item]:
+    def get_build(self, build_tracker: BuildTracker) -> Sequence[Item]:
         build: List[Item] = []
 
-        for _ in range(item_count):
+        for _ in range(self.item_count):
             build.append(self._next_item(build_tracker, build))
 
         return BuildCreator._sort_build(build_tracker, build)
@@ -25,7 +26,7 @@ class BuildCreator:
                    key=lambda item: build_tracker.co_occurrences(item, build) if not self._filter(item, build) else -1)
 
     @staticmethod
-    def _sort_build(build_tracker: BuildTracker, build: Collection[Item]) -> Collection[Item]:
+    def _sort_build(build_tracker: BuildTracker, build: Collection[Item]) -> Sequence[Item]:
         """Sort according to slot preferences returned by item.get_slots()."""
         return sorted(build, key=lambda item: build_tracker.get(item).get_slots())
 
@@ -33,17 +34,11 @@ class ItemBuildCreator(BuildCreator):
     ITEM_COUNT: int = 6
 
     def __init__(self, filters: Collection[Filter] = tuple()):
-        super().__init__(filters)
-
-    def get_build(self, build_tracker: BuildTracker) -> Collection[Item]:
-        return super().get_build(build_tracker, ItemBuildCreator.ITEM_COUNT)
+        super().__init__(ItemBuildCreator.ITEM_COUNT, filters)
 
 
 class RelicBuildCreator(BuildCreator):
     ITEM_COUNT: int = 2
 
     def __init__(self, filters: Collection[Filter] = tuple()):
-        super().__init__(filters)
-
-    def get_build(self, build_tracker: BuildTracker) -> Collection[Item]:
-        return super().get_build(build_tracker, RelicBuildCreator.ITEM_COUNT)
+        super().__init__(RelicBuildCreator.ITEM_COUNT, filters)

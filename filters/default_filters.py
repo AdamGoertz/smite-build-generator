@@ -7,8 +7,6 @@ loader = ItemLoader(Item)
 default_item_filters: List[Filter] = []
 default_relic_filters: List[Filter] = []
 
-#TODO: Add Identity filters to count evolved and base version as same item
-
 default_item_filters.append(DuplicateExclusionFilter())
 default_item_filters.append(ExclusionFilter(loader.load("./config/tier_1_items.json")))
 default_item_filters.append(ExclusionFilter(loader.load("./config/tier_2_items.json")))

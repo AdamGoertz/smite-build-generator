@@ -30,3 +30,24 @@ class MutualExclusionFilter(Filter):
 class DuplicateExclusionFilter(Filter):
     def apply(self, item: Item, other_items: Collection[Item] = set()) -> bool:
         return item in other_items
+
+
+class PriorityFilter(Filter):
+    def __init__(self, prioritized_items: Collection[Item] = set()):
+        self.prioritized_items = set(prioritized_items)
+
+    def apply(self, item: Item, other_items: Collection[Item] = set()) -> bool:
+        """Return True (filter the item) if
+            * not all the prioritized items have been added yet, and
+            * the new item is not prioritized, and
+            * all the items added so far have been prioritized items.
+
+            The third condition ensures that the system does not continue to search for prioritized items if no more appear in the build data.
+            (i.e. if at any point the system fails to find any of the prioritized items, a non-priority item will be added,
+            causing the third condition to evaluate to False, allowing the system to process non-priority items as normal)
+        """
+
+        return len(other_items) < len(self.prioritized_items) \
+               and item not in self.prioritized_items \
+               and all(check_item in self.prioritized_items for check_item in other_items)
+

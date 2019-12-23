@@ -17,7 +17,7 @@ class BuildCreator:
         return BuildCreator._sort_build(build_tracker, build)
 
     def _filter(self, item: Item, build: Collection[Item]) -> bool:
-        """Returns True if 'item' is filtered by any of the stored filters, otherwise False."""
+        """Returns True if 'item' is filtered out by any of the stored filters, otherwise False."""
         return any(map(lambda filter: filter.apply(item, build), self.filters))
 
     def _next_item(self, build_tracker: BuildTracker, build: Collection[Item]) -> Item:

@@ -10,3 +10,4 @@ from scrapers.smiteguru_scraper import SmiteGuruScraper
 from trackers.build_tracker import BuildTracker
 from trackers.item_tracker import ItemTracker
 from filters.filter import ExclusionFilter, MutualExclusionFilter
+from filters.item_map import IdentityMap

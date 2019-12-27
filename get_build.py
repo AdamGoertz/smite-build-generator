@@ -1,5 +1,5 @@
 import argparse
-from filters import default_filters, default_maps
+from config.scripts import default_maps, default_filters
 from creators.build_creator import ItemBuildCreator, RelicBuildCreator
 from data_objects.build import Build
 from data_objects.item import Item

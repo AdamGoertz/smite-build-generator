@@ -1,4 +1,4 @@
-from typing import Collection, List, Sequence
+from typing import Collection, List, Sequence, Optional
 from trackers.build_tracker import BuildTracker
 from filters.filter import Filter
 from data_objects.item import Item
@@ -11,19 +11,29 @@ class BuildCreator:
     def get_build(self, build_tracker: BuildTracker) -> Sequence[Item]:
         build: List[Item] = []
 
-        for _ in range(self.item_count):
-            build.append(self._next_item(build_tracker, build))
+        while len(build) < self.item_count:
+            item = self._next_item(build_tracker, build)
+
+            if item:
+                build.append(item)
+            else:
+                break
 
         return BuildCreator._sort_build(build_tracker, build)
 
     def _filter(self, item: Item, build: Collection[Item]) -> bool:
-        """Returns True if 'item' is filtered out by any of the stored filters, otherwise False."""
-        return any(map(lambda filter: filter.apply(item, build), self.filters))
+        """Returns False if 'item' is filtered out by any of the stored filters, otherwise True."""
+        return all(map(lambda filter: filter.apply(item, build), self.filters))
 
-    def _next_item(self, build_tracker: BuildTracker, build: Collection[Item]) -> Item:
+    def _next_item(self, build_tracker: BuildTracker, build: Collection[Item]) -> Optional[Item]:
         """Find the item where the sum of the connections between that item and other items in the build is maximized, provided the item is allowed by the filters."""
-        return max(build_tracker.items(),
-                   key=lambda item: build_tracker.co_occurrences(item, build) if not self._filter(item, build) else -1)
+        items = filter(lambda item: self._filter(item, build), build_tracker.trackers)
+
+        if items:
+            items_sorted_by_count = sorted(items, key=lambda item: build_tracker.count(item), reverse=True)
+            return max(items_sorted_by_count, key=lambda item: build_tracker.co_occurrences(item, build))
+        else:
+            return None
 
     @staticmethod
     def _sort_build(build_tracker: BuildTracker, build: Collection[Item]) -> Sequence[Item]:

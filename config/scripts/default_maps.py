@@ -13,10 +13,10 @@ default_item_maps.append(IdentityMap(loader.load("./config/items/devourer's_gaun
 default_item_maps.append(IdentityMap(loader.load("./config/items/gauntlet_of_thebes.json")))
 default_item_maps.append(IdentityMap(loader.load("./config/items/hide_of_the_urchin.json")))
 default_item_maps.append(IdentityMap(loader.load("./config/items/rage.json")))
-default_item_maps.append(IdentityMap(loader.load("./config/items/shaman's_ring.json")))
 default_item_maps.append(IdentityMap(loader.load("./config/items/soul_eater.json")))
 default_item_maps.append(IdentityMap(loader.load("./config/items/transcendence.json")))
 default_item_maps.append(IdentityMap(loader.load("./config/items/warlock's_staff.json")))
+default_item_maps.append(IdentityMap(loader.load("./config/items/charon's_coin.json")))
 
 
 default_relic_maps.append(IdentityMap(loader.load("./config/relics/aegis_amulet.json")))

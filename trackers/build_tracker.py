@@ -40,10 +40,3 @@ class BuildTracker:
     def get(self, item: Item) -> ItemTracker:
         return self.trackers.get(item, self.tracker_factory(item))
 
-    def items(self) -> Collection[Item]:
-        # Return items in sorted order from most common to least common
-        # TODO: remove BuildCreator's dependency on ordering of returned items.
-        return sorted(self.trackers.keys(), key=lambda item: self.trackers.get(item, self.tracker_factory(item)).count, reverse=True)
-
-    def get_trackers(self) -> Collection[ItemTracker]:
-        return self.trackers.values()

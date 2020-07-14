@@ -15,7 +15,8 @@ from trackers.item_tracker import ItemTracker
 
 parser = argparse.ArgumentParser(description='get a build for a specific god')
 parser.add_argument('god', help='the god to create a build for')
-parser.add_argument('--pages', type=int, choices=range(1, 50), required=False, default=10, help='the number of smite.guru pages to search for builds')
+parser.add_argument('--pages', type=int, choices=range(1, 50), required=False, default=25, help='the number of smite.guru pages to search for builds')
+parser.add_argument('--matches', type=int, choices=range(1, 100), required=False, default=15, help='the number of matches to use for generating a build')
 parser.add_argument('--verbose', action="store_true", help='print debug messages while generating the build')
 build_sources = parser.add_mutually_exclusive_group(required=True)
 build_sources.add_argument('--player', help='the player whose builds should be used to create a build')
@@ -35,7 +36,7 @@ relic_creator = RelicBuildCreator(default_filters.default_relic_filters)
 if args.player:
     player = ptable.get_player_by_name(args.player)
     if player:
-        scraper = SmiteGuruScraper(Item, Build, player, pages=args.pages, verbose=args.verbose)
+        scraper = SmiteGuruScraper(Item, Build, player, matches=args.matches, page_limit=args.pages, verbose=args.verbose)
         generator = BuildGenerator(args.god, Build, item_tracker, relic_tracker, item_creator, relic_creator, scraper)
         print(generator.generate_build())
     else:
